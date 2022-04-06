@@ -13,8 +13,7 @@ def login():
     data=flask.request.json
     email=data['email']
     password=data['password']
-    user=auth.get_user_by_email(email)
-    #Validación sí existe usuario 
+    user=auth.get_user_by_email(email) 
     if(user):
       usuario=db.reference("/usuarios").child(user.uid).get()
       print(usuario)
@@ -31,19 +30,19 @@ def login():
 
 @users.route('/registro',methods=['POST'])
 def registroUsuarios():
-  reference=db.reference("/usuarios")
-  data=flask.request.json
-  usuarios={
-  "nombre":data["nombre"],
-  "typeDoc":data["typeDoc"],
-  "numDoc":data["numDoc"],
-  "userName":data["userName"],
-  "password":data["password"],
-  "email":data["email"],
-  "phone":data["phone"],
-  "state":"1"
-  }  
   try:
+    reference=db.reference("/usuarios")
+    data=flask.request.json
+    usuarios={
+    "nombre":data["nombre"],
+    "typeDoc":data["typeDoc"],
+    "numDoc":data["numDoc"],
+    "userName":data["userName"],
+    "password":data["password"],
+    "email":data["email"],
+    "phone":data["phone"],
+    "state":"1"
+    }  
     if(validateExist(reference,usuarios,"numDoc")):
       return flask.jsonify({"Mensaje":"Ya existe un usuario creado con ese cedula"})
     else:
@@ -57,5 +56,8 @@ def registroUsuarios():
 # Obtener usuario en especifico
 @users.route('/usuarios<string:uid>')
 def listaUsuariosUid(uid):
-  database = db.reference("/usuarios").child(uid).get()
-  return flask.jsonify(database)
+  try:
+    database = db.reference("/usuarios").child(uid).get()
+    return flask.jsonify(database)
+  except :
+    return flask.jsonify({"Mensaje":"Error trayendo el usuario"})
