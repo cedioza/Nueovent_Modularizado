@@ -4,24 +4,25 @@ from firebase_admin import auth,db
 from ...common.sendEmail import sendEmail
 import cloudinary
 
-anounce=flask.Blueprint('anounce',__name__)
+anounces=flask.Blueprint('anounces',__name__)
 
-#Buscar Anuncion
-@anounce.route('/obteneranuncio/<string:uid>',methods=['GET'])
+#Search  Anounce
+@anounces.route('/obteneranuncio/<string:uid>',methods=['GET'])
 def obtenerAnuncio(uid):
-  anuncio=db.reference('/anuncios').child(uid).get()
-  alojamiento=db.reference('/alojamiento').child(anuncio["uidAlojamiento"]).get()
 
-  anuncio["telefono"]=alojamiento["telefono"]
-  anuncio["email"]=alojamiento["email"]
-  anuncioP=[]
-  anuncioP.append(anuncio)
-   
-  return flask.jsonify(anuncioP)
+  try:
+    anounce=db.reference('/anuncios').child(uid).get()
+    alojamiento=db.reference('/alojamiento').child(anounce["uidAlojamiento"]).get()
+    anounce["telefono"]=alojamiento["telefono"]
+    anounce["email"]=alojamiento["email"]
+    anounceArray=[]
+    anounceArray.append(anounce)
+    return flask.jsonify(anounceArray)
+  except :
+    return flask.jsonify({"Message":"Error obteniendo el anuncio"})
+#Create Anounce
 
-#Crear Anuncio
-
-@anounce.route('/anuncio',methods=['POST'])
+@anounces.route('/anuncio',methods=['POST'])
 def registroAnuncios():
   try:
     reference=db.reference("/anuncios")
@@ -46,24 +47,26 @@ def registroAnuncios():
     reference=db.reference("/error").push(e)
     return flask.jsonify({"Mensaje":"Error creando anuncio"})
 
-@anounce.route('/misanuncios/<string:uid>')
-def misAnuncios(uid):
-  anuncios=db.reference('/anuncios').get()
+# get anounces 
+@anounces.route('/misanuncios/<string:uid>')
+def myAnounces(uid):
+ 
   try:
-    misAnuncios=[]
-    anuncioTotal=[]
+    anuncios=db.reference('/anuncios').get()
+    myAnounce=[]
+    totalAnounce=[]
     if(anuncios):
        for key, value in anuncios.items():
          if(value["uidAlojamiento"] == uid):
-           misAnuncios.append(key) 
+           myAnounce.append(key) 
            data=db.reference('/anuncios').child(key).get()
-           anuncioTotal.append(data)
-    return flask.jsonify(list(zip(misAnuncios,anuncioTotal)))
+           totalAnounce.append(data)
+    return flask.jsonify(list(zip(myAnounce,totalAnounce)))
   except :
     return flask.jsonify({"Message":"uid incorrecto intente nuevamente" })
 
-@anounce.route('/anuncios')
-def zona_anuncios():
+@anounces.route('/anuncios')
+def zone_anounces():
   anuncios=db.reference("/anuncios").get()
-  datos=anuncios.items()
-  return flask.jsonify(list(datos))
+  data=anuncios.items()
+  return flask.jsonify(list(data))

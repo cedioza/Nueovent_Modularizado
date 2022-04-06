@@ -2,7 +2,6 @@ import flask
 from firebase_admin import db
 
 home=flask.Blueprint('home',__name__)
-
 # Home
 @home.route('/home')
 def anuncios():
@@ -10,9 +9,7 @@ def anuncios():
     datos=anuncios.items()
     return flask.jsonify(list(datos))
 
-
 @home.route("/")
-
 def index():
-  return flask.jsonify({"Message":"""Ver  solamente 4 anuncios  /home
-  Trae todos los eventos /zonaevento """})
+  return flask.jsonify(db.reference('/').get())
+
